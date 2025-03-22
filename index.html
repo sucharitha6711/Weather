@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Display</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+     
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+body {
+    animation: fadeIn 1.2s ease-in-out;
+}
+
+/* Weather card hover animation */
+.weather-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s, box-shadow 0.3s;
+    margin-bottom: 30px;
+    position: relative;
+    overflow: hidden;
+}
+
+.weather-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* ☁️ Cloud Drift Animation */
+@keyframes cloudDrift {
+    0% {
+        transform: translateX(-30px);
+    }
+    50% {
+        transform: translateX(30px);
+    }
+    100% {
+        transform: translateX(-30px);
+    }
+}
+
+.cloud-icon {
+    animation: cloudDrift 5s infinite ease-in-out;
+}
+
+/* 🌧️ Raindrop Effect */
+@keyframes raindrop {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(10px);
+    }
+}
+
+.raindrop {
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    width: 3px;
+    height: 10px;
+    background: rgba(0, 0, 255, 0.5);
+    animation: raindrop 0.6s infinite alternate;
+}
+
+/* ☀️ Sunrise Glow */
+@keyframes sunriseGlow {
+    0% {
+        opacity: 0.6;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0.6;
+    }
+}
+
+.sun-icon {
+    animation: sunriseGlow 4s infinite ease-in-out;
+}
+
+/* ❄️ Snowfall Effect */
+@keyframes snowfall {
+    0% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+}
+
+.snowflake {
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: white;
+    border-radius: 50%;
+    opacity: 0.7;
+    animation: snowfall 3s infinite linear;
+}
+
+/* 🌬️ Windy Shake Effect */
+@keyframes windyShake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    50% {
+        transform: translateX(5px);
+    }
+}
+
+.wind-icon {
+    animation: windyShake 1.5s infinite ease-in-out;
+}
+
+/* Weather Card Content */
+.weather-card img {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 10px;
+}
+
+/* Search Bar */
+.search-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.search-container input {
+    width: 100%;
+    max-width: 500px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    transition: all 0.3s ease-in-out;
+}
+
+.search-container input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+}
+
+/* Search Button */
+.search-container button {
+    width: 100%;
+    max-width: 150px;
+    padding: 10px;
+    border: none;
+    background: #007bff;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.search-container button:hover {
+    background: #0056b3;
+    transform: scale(1.1);
+}
+
+/* Graph Container */
+.graph-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 40px;
+    margin-top: 40px;
+}
+
+.graph-box {
+    width: 100%;
+    max-width: 500px;
+    margin-bottom: 40px;
+}
+
+canvas {
+    width: 100% !important;
+    height: 300px !important;
+}
+
+/* Responsive Styles */
+@media (max-width: 576px) {
+    .weather-card {
+        padding: 15px;
+        margin-bottom: 40px;
+    }
+    .weather-card img {
+        width: 50px;
+        height: 50px;
+    }
+    .search-container input {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+
+@media (min-width: 577px) and (max-width: 768px) {
+    .graph-container {
+        gap: 45px;
+    }
+    .graph-box {
+        margin-bottom: 50px;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 992px) {
+    .graph-container {
+        gap: 40px;
+    }
+}
+
+@media (min-width: 993px) {
+    .chart-container {
+        max-width: 350px;
+        height: 220px;
+    }
+}
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2 class="text-center mb-4">Weather Predicter</h2>
+
+        <div class="search-container">
+            <input type="text" id="city-input" placeholder="Enter city name..." />
+            <button onclick="fetchWeather()">Search</button>
+        </div>
+
+        <p id="weather-advice">Enter a city name to get weather advice.</p>
+
+        <div class="row justify-content-center">
+            <div class="col-md-4 mb-3">
+                <div class="weather-card">
+                    <img src="https://firebasestorage.googleapis.com/v0/b/portfolio-92a1d.appspot.com/o/solar-temperature.png?alt=media&token=42577990-68dc-4d30-8800-2e28220c39d3" alt="Temperature">
+                    <h4>Temperature</h4>
+                    <p id="temperature">--°C</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="weather-card">
+                    <img src="https://firebasestorage.googleapis.com/v0/b/portfolio-92a1d.appspot.com/o/weather.png?alt=media&token=6f8047e1-6a67-4822-b7fa-a9dd60573d6c" alt="Weather">
+                    <h4>Weather</h4>
+                    <p id="weather-condition">--</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="weather-card">
+                    <img src="https://firebasestorage.googleapis.com/v0/b/portfolio-92a1d.appspot.com/o/wind-turbine.png?alt=media&token=d2dc1b63-0d61-4d2a-aa25-4f71cc163c8b" alt="Wind Speed">
+                    <h4>Wind Speed</h4>
+                    <p id="wind-speed">-- km/h</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="weather-card">
+                    <img src="https://firebasestorage.googleapis.com/v0/b/portfolio-92a1d.appspot.com/o/humidity.png?alt=media&token=ec7666ab-059c-438e-8091-4acf56ed0e29" alt="Humidity">
+                    <h4>Humidity</h4>
+                    <p id="humidity">--%</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="weather-card">
+                    <img src="https://firebasestorage.googleapis.com/v0/b/portfolio-92a1d.appspot.com/o/pressure-gauge.png?alt=media&token=76e60fbe-01f5-4d49-a7c6-d052f70a90b4" alt="Pressure">
+                    <h4>Pressure</h4>
+                    <p id="pressure">-- hPa</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="weather-card">
+                    <img src="https://firebasestorage.googleapis.com/v0/b/portfolio-92a1d.appspot.com/o/calendar.png?alt=media&token=a850c428-9a02-4b52-a37a-7fca8b418db9" alt="Date">
+                    <h4>Date</h4>
+                    <p id="date">--</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <h3 class="text-center mt-4">Weather Forecast</h3>
+            
+            <div class="row justify-content-center">
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 d-flex justify-content-center">
+                    <div class="chart-container">
+                        <canvas id="hourlyWeatherChart"></canvas>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 d-flex justify-content-center">
+                    <div class="chart-container">
+                        <canvas id="dailyWeatherChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Chart.js and graph.js -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="graph.js"></script>
+        
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+       function fetchWeather() {
+    const city = document.getElementById("city-input").value.trim();
+    if (city === "") {
+        alert("Please enter a city name.");
+        return;
+    }
+
+    const weatherConditions = ["Sunny", "Cloudy", "Rainy", "Stormy", "Chilly", "Windy", "Foggy", "Snowing", "Humid"];
+    const weatherAdvice = {
+        "Sunny": "It's sunny, wear your sunglasses.",
+        "Cloudy": "It's cloudy, take an umbrella.",
+        "Rainy": "It's raining, don’t forget your raincoat.",
+        "Stormy": "It's stormy, stay indoors.",
+        "Chilly": "It's chilly, wear a warm jacket.",
+        "Windy": "It's windy, hold onto your hat.",
+        "Foggy": "It's foggy, drive carefully.",
+        "Snowing": "It's snowing, bundle up well.",
+        "Humid": "It's humid, stay hydrated."
+    };
+
+    const selectedWeather = weatherConditions[Math.floor(Math.random() * weatherConditions.length)];
+
+    const weatherData = {
+        temperature: Math.floor(Math.random() * 10) + 25,
+        weather: selectedWeather,
+        windSpeed: Math.floor(Math.random() * 20) + 5,
+        humidity: Math.floor(Math.random() * 50) + 30,
+        pressure: Math.floor(Math.random() * 50) + 1000,
+        date: new Date().toDateString()
+    };
+
+    // Updating the HTML with fetched data
+    document.getElementById("temperature").textContent = `${weatherData.temperature}°C`;
+    document.getElementById("weather-condition").textContent = weatherData.weather;
+    document.getElementById("wind-speed").textContent = `${weatherData.windSpeed} km/h`;
+    document.getElementById("humidity").textContent = `${weatherData.humidity}%`;
+    document.getElementById("pressure").textContent = `${weatherData.pressure} hPa`;
+    document.getElementById("date").textContent = weatherData.date;
+
+    // Updating the weather advice
+    document.getElementById("weather-advice").textContent = weatherAdvice[weatherData.weather];
+}
+
+    </script>
+
+</body>
+</html>
